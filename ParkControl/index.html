@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Estacionamiento</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-parking"></i>
+                <h2>ParkControl</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li class="menu-btn active" data-section="ingresos">
+                        <i class="fas fa-car-side"></i> Ingresos
+                    </li>
+                    <li class="menu-btn" data-section="salidas">
+                        <i class="fas fa-sign-out-alt"></i> Salidas
+                    </li>
+                    <li class="menu-btn" data-section="mapa">
+                        <i class="fas fa-map-marked-alt"></i> Mapa
+                    </li>
+                    <li class="menu-btn" data-section="usuarios">
+                        <i class="fas fa-users"></i> Clientes
+                    </li>
+                    <li class="menu-btn" data-section="reporte">
+                        <i class="fas fa-chart-bar"></i> Reportes
+                    </li>
+                    <li class="menu-btn" data-section="tarifas">
+                        <i class="fas fa-money-bill-wave"></i> Tarifas
+                    </li>
+                    <li class="menu-btn" data-section="cupos">
+                        <i class="fas fa-th"></i> Cupos
+                    </li>
+                    <li class="menu-btn" data-section="ajustes">
+                        <i class="fas fa-cog"></i> Ajustes
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Sistema v1.1.0</p>
+            </div>
+        </aside>
+
+        <main class="dashboard">
+            <header class="top-bar">
+                <div class="toggle-menu">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <h1>Sistema de Estacionamiento</h1>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Administrador</span>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Sección Ingresos -->
+                <section id="ingresos" class="section active">
+                    <div class="section-header">
+                        <h2><i class="fas fa-car-side"></i> Registrar Ingreso</h2>
+                        <div class="current-status">
+                            <div class="status-item">
+                                <i class="fas fa-car"></i>
+                                <span id="contador-carros">0/0</span>
+                            </div>
+                            <div class="status-item">
+                                <i class="fas fa-motorcycle"></i>
+                                <span id="contador-motos">0/0</span>
+                            </div>
+                            <div class="status-item">
+                                <i class="fas fa-bicycle"></i>
+                                <span id="contador-bicis">0/0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Datos del Vehículo</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="placa"><i class="fas fa-id-card"></i> Placa:</label>
+                                    <input type="text" id="placa" placeholder="AAA-123" class="form-control">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="tipo-vehiculo"><i class="fas fa-car"></i> Tipo de Vehículo:</label>
+                                    <select id="tipo-vehiculo" class="form-control">
+                                        <option value="carro">Carro</option>
+                                        <option value="moto">Moto</option>
+                                        <option value="bicicleta">Bicicleta</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-check form-group">
+                                    <input type="checkbox" id="vip" class="form-check-input">
+                                    <label for="vip" class="form-check-label"><i class="fas fa-crown"></i> Cliente VIP</label>
+                                </div>
+                                
+                                <div class="form-check form-group">
+                                    <input type="checkbox" id="discapacidad" class="form-check-input">
+                                    <label for="discapacidad" class="form-check-label"><i class="fas fa-wheelchair"></i> Espacio para discapacidad</label>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="cliente-select"><i class="fas fa-user"></i> Cliente:</label>
+                                    <select id="cliente-select" class="form-control">
+                                        <option value="">Seleccionar cliente</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Ubicación</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="espacio-numero"><i class="fas fa-parking"></i> Espacio de estacionamiento:</label>
+                                    <select id="espacio-numero" class="form-control"></select>
+                                </div>
+                                
+                                <div class="mini-map" id="mini-map">
+                                    <!-- El mini mapa se genera dinámicamente -->
+                                </div>
+                                
+                                <button onclick="registrarIngreso()" class="btn btn-primary btn-block">
+                                    <i class="fas fa-check-circle"></i> Registrar Ingreso
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-list"></i> Vehículos Estacionados</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Placa</th>
+                                            <th>Tipo</th>
+                                            <th>Ubicación</th>
+                                            <th>Ingreso</th>
+                                            <th>Tiempo</th>
+                                            <th>Cliente</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabla-ingresos">
+                                        <!-- Se llena dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección Salidas -->
+                <section id="salidas" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-sign-out-alt"></i> Registrar Salida</h2>
+                    </div>
+
+                    <div class="card-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Buscar Vehículo</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="placa-salida"><i class="fas fa-search"></i> Buscar por placa:</label>
+                                    <div class="search-container">
+                                        <input type="text" id="placa-salida" placeholder="AAA-123" class="form-control">
+                                        <button onclick="buscarVehiculo()" class="btn">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="vehiculo-encontrado" id="vehiculo-encontrado">
+                                    <!-- Se llena dinámicamente -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card factura-card" id="factura-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-file-invoice-dollar"></i> Factura</h3>
+                            </div>
+                            <div class="card-body" id="factura-contenido">
+                                <div class="factura-placeholder">
+                                    <i class="fas fa-receipt factura-icon"></i>
+                                    <p>Busque un vehículo para generar la factura</p>
+                                </div>
+                                <!-- El contenido de la factura se genera dinámicamente -->
+                            </div>
+                            <div class="card-footer">
+                                <button onclick="registrarSalida()" class="btn btn-success" disabled id="btn-procesar-salida">
+                                    <i class="fas fa-check-circle"></i> Procesar Salida
+                                </button>
+                                <button onclick="imprimirFactura()" class="btn btn-outline" disabled id="btn-imprimir">
+                                    <i class="fas fa-print"></i> Imprimir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección Mapa -->
+                <section id="mapa" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-map-marked-alt"></i> Mapa del Estacionamiento</h2>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Vista General</h3>
+                            <div class="card-tools">
+                                <div class="status-legend">
+                                    <div class="status-indicator">
+                                        <div class="status-box available-box"></div>
+                                        <span>Disponible</span>
+                                    </div>
+                                    <div class="status-indicator">
+                                        <div class="status-box occupied-box"></div>
+                                        <span>Ocupado</span>
+                                    </div>
+                                    <div class="status-indicator">
+                                        <div class="status-box vip-box"></div>
+                                        <span>VIP</span>
+                                    </div>
+                                    <div class="status-indicator">
+                                        <div class="status-box disabled-box"></div>
+                                        <span>Discapacidad</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="parking-map" class="parking-map">
+                                <!-- Se genera dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Configuración del Mapa</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group-inline">
+                                <div class="form-group">
+                                    <label for="filas-mapa"><i class="fas fa-arrows-alt-v"></i> Filas:</label>
+                                    <input type="number" id="filas-mapa" min="1" value="3" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="columnas-mapa"><i class="fas fa-arrows-alt-h"></i> Columnas:</label>
+                                    <input type="number" id="columnas-mapa" min="1" value="5" class="form-control">
+                                </div>
+                                <button onclick="inicializarMapa()" class="btn btn-primary">
+                                    <i class="fas fa-sync-alt"></i> Actualizar mapa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección Usuarios/Clientes -->
+                <section id="usuarios" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-users"></i> Gestión de Clientes</h2>
+                    </div>
+
+                    <div class="card-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Nuevo Cliente</h3>
+                            </div>
+                            <div class="card-body">
+                                <form id="cliente-form">
+                                    <div class="form-group">
+                                        <label for="usuario-nombre"><i class="fas fa-user"></i> Nombre completo:</label>
+                                        <input type="text" id="usuario-nombre" placeholder="Nombre del cliente" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="usuario-telefono"><i class="fas fa-phone"></i> Teléfono:</label>
+                                        <input type="text" id="usuario-telefono" placeholder="Teléfono" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="usuario-email"><i class="fas fa-envelope"></i> Email:</label>
+                                        <input type="email" id="usuario-email" placeholder="Email" class="form-control">
+                                    </div>
+                                    <div class="form-check form-group">
+                                        <input type="checkbox" id="usuario-vip" class="form-check-input">
+                                        <label for="usuario-vip" class="form-check-label"><i class="fas fa-crown"></i> Cliente VIP</label>
+                                    </div>
+                                    <button type="button" onclick="agregarUsuario()" class="btn btn-primary btn-block">
+                                        <i class="fas fa-user-plus"></i> Agregar Cliente
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Lista de Clientes</h3>
+                                <div class="card-tools">
+                                    <div class="search-container">
+                                        <input type="text" id="buscar-cliente" placeholder="Buscar cliente..." class="form-control">
+                                        <button class="btn">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre</th>
+                                                <th>Teléfono</th>
+                                                <th>Email</th>
+                                                <th>Tipo</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabla-usuarios">
+                                            <!-- Se llena dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección Reporte -->
+                <section id="reporte" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-chart-bar"></i> Reportes</h2>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Historial de Movimientos</h3>
+                            <div class="card-tools">
+                                <div class="form-group-inline">
+                                    <div class="form-group">
+                                        <label for="reporte-fecha-inicio">Desde:</label>
+                                        <input type="date" id="reporte-fecha-inicio" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="reporte-fecha-fin">Hasta:</label>
+                                        <input type="date" id="reporte-fecha-fin" class="form-control">
+                                    </div>
+                                    <button class="btn btn-primary" onclick="cargarReporte()">
+                                        <i class="fas fa-filter"></i> Filtrar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="resumen-reporte" class="dashboard-stats">
+                                <!-- Se llena dinámicamente -->
+                            </div>
+                            
+                            <div id="grafico-ingresos" class="chart-container">
+                                <!-- Se llena dinámicamente -->
+                            </div>
+                            
+                            <div class="chart-row">
+                                <div id="grafico-tipos" class="chart-container">
+                                    <!-- Se llena dinámicamente -->
+                                </div>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Placa</th>
+                                            <th>Tipo</th>
+                                            <th>Ingreso</th>
+                                            <th>Salida</th>
+                                            <th>Tiempo</th>
+                                            <th>Cliente</th>
+                                            <th>Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabla-reporte">
+                                        <!-- Se llena dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-outline" onclick="exportarReporte()">
+                                <i class="fas fa-file-export"></i> Exportar Excel
+                            </button>
+                            <button class="btn btn-outline" onclick="imprimirReporte()">
+                                <i class="fas fa-print"></i> Imprimir
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección Tarifas -->
+                <section id="tarifas" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-money-bill-wave"></i> Tarifas</h2>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Configuración de Tarifas</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-grid">
+                                <div class="tarifa-card">
+                                    <i class="fas fa-car tarifa-icon"></i>
+                                    <h4>Carros</h4>
+                                    <div class="form-group">
+                                        <label for="tarifa-carro">Tarifa por hora (S/.)</label>
+                                        <input type="number" id="tarifa-carro" value="5" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="tarifa-card">
+                                    <i class="fas fa-motorcycle tarifa-icon"></i>
+                                    <h4>Motos</h4>
+                                    <div class="form-group">
+                                        <label for="tarifa-moto">Tarifa por hora (S/.)</label>
+                                        <input type="number" id="tarifa-moto" value="3" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="tarifa-card">
+                                    <i class="fas fa-bicycle tarifa-icon"></i>
+                                    <h4>Bicicletas</h4>
+                                    <div class="form-group">
+                                        <label for="tarifa-bicicleta">Tarifa por hora (S/.)</label>
+                                        <input type="number" id="tarifa-bicicleta" value="1" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="descuentos-section">
+                                <h4><i class="fas fa-tags"></i> Descuentos</h4>
+                                <div class="form-group">
+                                    <label for="descuento-vip">Descuento para VIP (%):</label>
+                                    <input type="number" id="descuento-vip" value="20" min="0" max="100" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <button onclick="guardarAjustes()" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Configuración
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección Cupos -->
+                <section id="cupos" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-th"></i> Gestión de Cupos</h2>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Configuración de Cupos</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-grid">
+                                <div class="cupo-card">
+                                    <i class="fas fa-car cupo-icon"></i>
+                                    <h4>Carros</h4>
+                                    <div class="form-group">
+                                        <label for="cupos-carros">Cantidad de espacios:</label>
+                                        <input type="number" id="cupos-carros" value="10" min="0" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="cupo-card">
+                                    <i class="fas fa-motorcycle cupo-icon"></i>
+                                    <h4>Motos</h4>
+                                    <div class="form-group">
+                                        <label for="cupos-motos">Cantidad de espacios:</label>
+                                        <input type="number" id="cupos-motos" value="15" min="0" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="cupo-card">
+                                    <i class="fas fa-bicycle cupo-icon"></i>
+                                    <h4>Bicicletas</h4>
+                                    <div class="form-group">
+                                        <label for="cupos-bicis">Cantidad de espacios:</label>
+                                        <input type="number" id="cupos-bicis" value="5" min="0" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="cupo-card">
+                                    <i class="fas fa-crown cupo-icon"></i>
+                                    <h4>VIP</h4>
+                                    <div class="form-group">
+                                        <label for="cupos-vip">Cantidad de espacios:</label>
+                                        <input type="number" id="cupos-vip" value="3" min="0" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="cupo-card">
+                                    <i class="fas fa-wheelchair cupo-icon"></i>
+                                    <h4>Discapacidad</h4>
+                                    <div class="form-group">
+                                        <label for="cupos-discapacidad">Cantidad de espacios:</label>
+                                        <input type="number" id="cupos-discapacidad" value="2" min="0" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="guardarAjustes()" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Configuración
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección Ajustes -->
+                <section id="ajustes" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-cog"></i> Ajustes del Sistema</h2>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Configuración General</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="nombre-negocio"><i class="fas fa-store"></i> Nombre del Negocio:</label>
+                                <input type="text" id="nombre-negocio" placeholder="Nombre del estacionamiento" class="form-control">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="direccion"><i class="fas fa-map-marker-alt"></i> Dirección:</label>
+                                <input type="text" id="direccion" placeholder="Dirección del estacionamiento" class="form-control">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="telefono"><i class="fas fa-phone"></i> Teléfono:</label>
+                                <input type="text" id="telefono" placeholder="Teléfono de contacto" class="form-control">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="tema-color"><i class="fas fa-palette"></i> Tema de color:</label>
+                                <select id="tema-color" class="form-control">
+                                    <option value="blue">Azul (Predeterminado)</option>
+                                    <option value="green">Verde</option>
+                                    <option value="purple">Púrpura</option>
+                                    <option value="dark">Oscuro</option>
+                                </select>
+                            </div>
+                            
+                            <button onclick="guardarAjustes()" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Ajustes
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Mantenimiento del Sistema</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> 
+                                Las siguientes acciones son irreversibles. Tenga precaución.
+                            </p>
+                            
+                            <div class="form-group">
+                                <button onclick="exportarDatos()" class="btn btn-outline btn-block">
+                                    <i class="fas fa-download"></i> Exportar todos los datos
+                                </button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button onclick="importarDatos()" class="btn btn-outline btn-block">
+                                    <i class="fas fa-upload"></i> Importar datos
+                                </button>
+                                <input type="file" id="import-file" style="display: none">
+                            </div>
+                            
+                            <div class="form-group">
+                                <button onclick="limpiarHistorial()" class="btn btn-warning btn-block">
+                                    <i class="fas fa-eraser"></i> Limpiar historial
+                                </button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button onclick="resetearSistema()" class="btn btn-danger btn-block">
+                                    <i class="fas fa-trash-alt"></i> Restablecer sistema
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="footer">
+                <p>© 2025 Sistema de Estacionamiento ParkControl</p>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Modales -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Título</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body" id="modal-contenido">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <!-- Botones dinámicos -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
