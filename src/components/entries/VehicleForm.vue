@@ -6,7 +6,7 @@
 
         <div class="p-5 space-y-4">
         <div>
-            <label class="block text-sm mb-1">Placa:</label>
+            <label class="block text-sm mb-1">holaaaaaaaaaaaaaa:</label>
             <InputText v-model="local.plate" class="w-full" placeholder="AAA-123" @input="maskPlate" @blur="maskPlate"/>
             <small v-if="plateError" class="text-rose-500">{{ plateError }}</small>
         </div>
