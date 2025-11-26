@@ -19,7 +19,11 @@ import { MapService }             from '@/services/map.service'
 import { LocalSettingsRepository } from '@/Infrastructure/Settings/LocalSettingsRepository'
 import { SettingsService } from '@/services/settings.service.js'
 
-import { ReportsService } from './reports.service'
+import { ReportsService } from '@/services/reports.service'
+
+
+
+
 
 const di = {
     slotsRepository:   new LocalSlotsRepository(),
@@ -38,6 +42,6 @@ di.clientsService = new ClientsService(di.clientsRepository)
 di.mapService     = new MapService(di.mapRepository, di.entriesService)
 di.exitsService   = new ExitsService(di.exitsRepository, di.entriesService, di.ratesService)
 di.settingsService = new SettingsService(di.settingsRepository)
-di.reportsService = new ReportsService(di.entriesService, di.ratesService)
+di.reportsService  = new ReportsService(di.exitsService, di.ratesService)
 
 export default di

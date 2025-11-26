@@ -1,91 +1,152 @@
 <template>
   <section class="space-y-6">
-    <div class="flex items-center gap-3">
-      <i class="pi pi-chart-bar text-xl text-sky-400"></i>
-      <h1 class="text-2xl md:text-3xl font-bold text-slate-100">Reportes</h1>
-    </div>
+    <!-- ENCABEZADO -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-chart-bar text-2xl text-sky-600"></i>
+        <h1 class="text-2xl md:text-3xl font-bold">Reportes</h1>
+      </div>
 
-    <!-- Filtros -->
-    <div class="rounded-2xl bg-slate-900/50 border border-slate-700 shadow-sm p-5">
-      <div class="grid sm:grid-cols-3 gap-4 items-end">
-        <div>
-          <label class="block text-sm mb-1 text-slate-300">Desde</label>
-          <input type="date" v-model="from" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2" />
-        </div>
-        <div>
-          <label class="block text-sm mb-1 text-slate-300">Hasta</label>
-          <input type="date" v-model="to" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2" />
-        </div>
-        <div class="flex gap-2">
-          <PButton label="Filtrar" @click="load" />
-          <PButton label="Hoy" @click="setToday" />
-          <PButton label="Últimos 30 días" @click="setLast30" />
-        </div>
+      <div class="flex gap-3">
+        <button
+          class="px-3 py-1.5 text-sm rounded-lg border border-rose-300 text-rose-700 hover:bg-rose-50"
+          @click="clearReports"
+        >
+          <i class="pi pi-trash mr-2"></i> Limpiar reportes
+        </button>
       </div>
     </div>
 
-    <!-- Resumen -->
-    <div class="grid lg:grid-cols-4 gap-4">
-      <div class="rounded-xl bg-slate-900/50 border border-slate-700 p-4">
-        <div class="text-slate-400 text-sm">Total Movimientos</div>
-        <div class="text-2xl font-semibold">{{ stats.totalMovements }}</div>
+    <!-- FILTROS POR FECHA -->
+    <div
+      class="rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 flex flex-wrap gap-4 items-end"
+    >
+      <div>
+        <label class="block text-xs font-medium text-slate-500 mb-1"
+          >Desde</label
+        >
+        <input
+          v-model="from"
+          type="date"
+          class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-slate-900 dark:border-slate-600"
+        />
       </div>
-      <div class="rounded-xl bg-slate-900/50 border border-slate-700 p-4">
-        <div class="text-slate-400 text-sm">Total Ingresos</div>
-        <div class="text-2xl font-semibold">{{ currency }}{{ format(stats.totalRevenue) }}</div>
+      <div>
+        <label class="block text-xs font-medium text-slate-500 mb-1"
+          >Hasta</label
+        >
+        <input
+          v-model="to"
+          type="date"
+          class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-slate-900 dark:border-slate-600"
+        />
       </div>
-      <div class="rounded-xl bg-slate-900/50 border border-slate-700 p-4">
-        <div class="text-slate-400 text-sm">Promedio Diario</div>
-        <div class="text-2xl font-semibold">{{ stats.avgPerDay }}</div>
-        <div class="text-xs text-slate-500">en {{ stats.period.days }} día(s)</div>
-      </div>
-      <div class="rounded-xl bg-slate-900/50 border border-slate-700 p-4">
-        <div class="text-slate-400 text-sm">Tipos</div>
-        <div class="text-sm">Carros: <b>{{ stats.counts.car }}</b></div>
-        <div class="text-sm">Motos: <b>{{ stats.counts.moto }}</b></div>
-        <div class="text-sm">Bicis: <b>{{ stats.counts.bike }}</b></div>
+      <div class="flex gap-2">
+        <button
+          class="px-3 py-1.5 text-sm rounded-lg border border-slate-300 hover:bg-slate-50"
+          @click="reload"
+        >
+          Aplicar filtro
+        </button>
+        <button
+          class="px-3 py-1.5 text-sm rounded-lg border border-slate-300 hover:bg-slate-50"
+          @click="setLast30"
+        >
+          Últimos 30 días
+        </button>
       </div>
     </div>
 
-    <!-- Tabla -->
-    <div class="rounded-2xl bg-slate-900/50 border border-slate-700 shadow-sm">
-      <div class="px-5 py-4 border-b border-slate-700 flex items-center gap-2">
-        <i class="pi pi-database text-emerald-300"></i>
-        <h2 class="text-lg font-semibold text-slate-100">Historial de Movimientos</h2>
-        <div class="ml-auto flex gap-2">
-          <PButton icon="pi pi-file" label="Exportar CSV" @click="onExport" />
-          <PButton icon="pi pi-print" label="Imprimir" @click="window.print()" />
+    <!-- TABLA DE HISTÓRICO -->
+    <div
+      class="rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+    >
+      <div
+        class="px-5 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between"
+      >
+        <h3 class="font-semibold text-lg flex items-center gap-2">
+          <i class="pi pi-list text-sky-600"></i> Histórico de vehículos
+          facturados
+        </h3>
+        <div class="flex flex-col items-end text-xs text-slate-500">
+          <div>
+            Registros:
+            <span class="font-semibold">{{ filteredRows.length }}</span>
+          </div>
+          <div class="mt-1">
+            Total recaudado:
+            <span class="font-semibold">
+              {{ formatCurrency(totalAmount) }}
+            </span>
+          </div>
         </div>
       </div>
+
       <div class="p-5 overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="text-slate-300">
-            <tr class="text-left">
+        <table class="min-w-full text-sm">
+          <thead class="text-left text-slate-500">
+            <tr>
               <th class="py-2 pr-4">Placa</th>
               <th class="py-2 pr-4">Tipo</th>
-              <th class="py-2 pr-4">Ubicación</th>
               <th class="py-2 pr-4">Ingreso</th>
               <th class="py-2 pr-4">Salida</th>
-              <th class="py-2 pr-4">Tiempo</th>
+              <th class="py-2 pr-4">Horas</th>
+              <th class="py-2 pr-4">Tarifa/Hora</th>
+              <th class="py-2 pr-4">Total</th>
               <th class="py-2 pr-4">Cliente</th>
-              <th class="py-2 pr-4">VIP</th>
-              <th class="py-2 pr-4">Monto</th>
             </tr>
           </thead>
+
           <tbody>
-            <tr v-if="!stats.rows.length">
-              <td colspan="9" class="py-6 text-center text-slate-500">No hay movimientos en el período seleccionado</td>
+            <tr
+              v-for="(r, idx) in filteredRows"
+              :key="idx"
+              class="border-t border-slate-200/70"
+            >
+              <!-- Placa y tipo (soporta plano o anidado) -->
+              <td class="py-2 pr-4">
+                {{ r.plate || r.entry?.plate || '—' }}
+              </td>
+              <td class="py-2 pr-4 capitalize">
+                {{ r.type || r.entry?.type || '—' }}
+              </td>
+
+              <!-- Hora de ingreso y de salida -->
+              <td class="py-2 pr-4">
+                {{ fmt(r.entryAt || r.entry?.startedAtISO || r.startedAtISO) }}
+              </td>
+              <td class="py-2 pr-4">
+                {{ fmt(r.exitAt || r.endedAtISO || r.finishedAtISO) }}
+              </td>
+
+              <!-- Horas facturadas (usa r.hours o calcula) -->
+              <td class="py-2 pr-4">
+                <span v-if="r.hours != null">
+                  {{ r.hours }}
+                </span>
+                <span v-else>
+                  {{ computeHours(r) }}
+                </span>
+              </td>
+
+              <!-- Tarifa por hora y total -->
+              <td class="py-2 pr-4">
+                {{ formatCurrency(r.ratePerHour ?? r.rate ?? 0) }}
+              </td>
+              <td class="py-2 pr-4 font-semibold">
+                {{ formatCurrency(r.total ?? r.amount ?? 0) }}
+              </td>
+
+              <!-- Cliente -->
+              <td class="py-2 pr-4">
+                {{ r.client || r.entry?.client || 'Cliente Ocasional' }}
+              </td>
             </tr>
-            <tr v-for="(r, idx) in stats.rows" :key="idx" class="border-t border-slate-800">
-              <td class="py-2 pr-4">{{ r.plate }}</td>
-              <td class="py-2 pr-4">{{ r.type }}</td>
-              <td class="py-2 pr-4">{{ r.space ?? '' }}</td>
-              <td class="py-2 pr-4">{{ dt(r.entryAt) }}</td>
-              <td class="py-2 pr-4">{{ dt(r.exitAt) }}</td>
-              <td class="py-2 pr-4">{{ r.hours }} h ({{ r.minutes }} min)</td>
-              <td class="py-2 pr-4">{{ r.client || '—' }}</td>
-              <td class="py-2 pr-4">{{ r.isVip ? 'Sí' : 'No' }}</td>
-              <td class="py-2 pr-4 font-semibold">{{ currency }}{{ format(r.amount) }}</td>
+
+            <tr v-if="!filteredRows.length">
+              <td colspan="8" class="py-6 text-center text-slate-400">
+                No hay vehículos facturados en el rango seleccionado
+              </td>
             </tr>
           </tbody>
         </table>
@@ -95,51 +156,126 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import di from '@/services/di'
 
-const currency = ref('$')
+const history = ref([]) // histórico crudo de facturados (todas las salidas)
+const from = ref('') // filtro desde (YYYY-MM-DD)
+const to = ref('') // filtro hasta  (YYYY-MM-DD)
 
-const stats = reactive({
-  totalMovements: 0,
-  totalRevenue: 0,
-  avgPerDay: 0,
-  counts: { car: 0, moto: 0, bike: 0 },
-  rows: [],
-  period: { from: null, to: null, days: 0 }
+// Cargar histórico desde el servicio
+async function loadHistory() {
+  if (di.reportsService && typeof di.reportsService.getHistory === 'function') {
+    history.value = await di.reportsService.getHistory()
+  } else if (di.exitsService && typeof di.exitsService.history === 'function') {
+    history.value = await di.exitsService.history()
+  } else {
+    history.value = []
+  }
+}
+
+// Filtrado por fechas sobre el histórico completo
+const filteredRows = computed(() => {
+  if (!from.value && !to.value) return history.value
+
+  const fromDate = from.value ? new Date(from.value) : null
+  const toDate = to.value ? new Date(to.value + 'T23:59:59') : null
+
+  return history.value.filter((r) => {
+    const raw =
+      r.entryAt ||
+      r.entry?.startedAtISO ||
+      r.startedAtISO ||
+      r.exitAt ||
+      r.endedAtISO
+
+    if (!raw) return false
+    const d = new Date(raw)
+    if (Number.isNaN(d.getTime())) return false
+    if (fromDate && d < fromDate) return false
+    if (toDate && d > toDate) return false
+    return true
+  })
 })
 
-const from = ref('')
-const to   = ref('')
+// Total recaudado en el rango filtrado
+const totalAmount = computed(() => {
+  return filteredRows.value.reduce((acc, r) => {
+    const raw = r.total ?? r.amount ?? 0
+    const n = Number(raw) || 0
+    return acc + n
+  }, 0)
+})
 
-// helpers
-function pad(n){ return String(n).padStart(2,'0') }
-function todayStr(d=new Date()){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}` }
-function addDays(date, n){ const x=new Date(date); x.setDate(x.getDate()+n); return x }
-function dt(d){ return d ? new Date(d).toLocaleString() : '' }
-function format(n){ return Number(n ?? 0).toFixed(2) }
+// Helpers
 
-function setToday(){ const t=new Date(); from.value=todayStr(t); to.value=todayStr(t); load() }
-function setLast30(){ const t=new Date(); from.value=todayStr(addDays(t,-29)); to.value=todayStr(t); load() }
-
-async function load(){
-  const s = await di.settingsService.load().catch(()=>null)
-  currency.value = s?.currencySymbol ?? '$'
-  const res = await di.reportsService.computeStats({
-    from: from.value || null,
-    to: to.value || null,
-    rounding: 'ceil'
-  })
-  Object.assign(stats, res)
+function fmt(iso) {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleString()
 }
-function onExport(){ di.reportsService.exportCSV(stats, 'reporte-movimientos.csv', currency.value) }
 
-onMounted(async () => {
-  // Fallback por si no se inyectó en di.js (no romper UI)
-  if (!di.reportsService) {
-    const { ReportsService } = await import('@/services/reports.service')
-    di.reportsService = new ReportsService(di.entriesService, di.ratesService)
+function formatCurrency(value) {
+  const n = Number(value) || 0
+  return n.toLocaleString('es-CO', {
+    style: 'currency',
+    currency: 'COP'
+  })
+}
+
+// Si no vienen horas calculadas, las inferimos por diferencia de fechas
+function computeHours(r) {
+  const startIso =
+    r.entryAt || r.entry?.startedAtISO || r.startedAtISO
+  const endIso =
+    r.exitAt || r.endedAtISO || r.finishedAtISO
+
+  if (!startIso || !endIso) return '—'
+
+  const start = new Date(startIso)
+  const end = new Date(endIso)
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return '—'
+
+  const ms = end - start
+  const hours = ms / 3600000
+  return hours.toFixed(2)
+}
+
+// Filtro rápido: últimos 30 días
+function setLast30() {
+  const today = new Date()
+  const past = new Date()
+  past.setDate(today.getDate() - 30)
+
+  from.value = past.toISOString().slice(0, 10)
+  to.value = today.toISOString().slice(0, 10)
+}
+
+// Recargar histórico manteniendo filtros activos
+async function reload() {
+  await loadHistory()
+}
+
+// Limpiar reportes
+async function clearReports() {
+  if (di.reportsService && typeof di.reportsService.clear === 'function') {
+    await di.reportsService.clear()
+  } else {
+    try {
+      localStorage.removeItem('pc:exits-history')
+      localStorage.removeItem('pc:reports-history')
+    } catch (e) {
+      console.error(e)
+    }
   }
-  setLast30()
+  await loadHistory()
+}
+
+// Cargar todo al montar la vista
+onMounted(async () => {
+  await loadHistory()
+  // Si quieres que, por defecto, muestre los últimos 30 días:
+  // setLast30()
 })
 </script>
