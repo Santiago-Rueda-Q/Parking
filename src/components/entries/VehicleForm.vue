@@ -245,6 +245,7 @@ const plateError = computed(() => {
 /* ==================== RESTO DE CAMPOS ==================== */
 
 const type = computed({
+  get: () => props.modelValue.type ?? 'car',
   set: v => updateField('type', v),
 })
 
@@ -264,6 +265,7 @@ const clientId = computed({
 })
 
 const typeOptions = [
+  { label: 'Carro',      value: 'car' },
   { label: 'Moto',       value: 'motorcycle' },
   { label: 'Bicicleta',  value: 'bicycle' },
 ]

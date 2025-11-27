@@ -59,9 +59,7 @@ export class EntriesService {
       ? 'SIN-PLT'
       : normalizePlate(rawPlate); // aquí puede lanzar "Formato de placa inválido"
 
-    if (plate !== 'SIN-PLT' && await this.isPlateActive(plate)) {
-      throw new Error('La placa ya tiene un ingreso activo.');
-    }
+
 
     if (await this.isSlotOccupied(data.slotCode)) {
       throw new Error('El espacio seleccionado ya está ocupado.');
