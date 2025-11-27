@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
             <i class="pi pi-sign-in text-2xl text-sky-600"></i>
-            <h1 class="text-2xl md:text-3xl font-bold">Hola Ingeniero</h1>
+            <h1 class="text-2xl md:text-3xl font-bold">Fallooooo</h1>
         </div>
         <EntriesHeaderStats :items="headerStats" />
         </div>
