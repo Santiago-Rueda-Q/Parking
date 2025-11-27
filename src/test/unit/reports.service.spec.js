@@ -1,24 +1,50 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { ReportsService } from '@/services/reports.service'
 
-describe('ReportsService', () => {
-    let svc
-    beforeEach(() => {
-        localStorage.clear()
-        const now = new Date()
-        const entryAt = new Date(now.getTime() - 2 * 3600000).toISOString() // 2h
-        const exitAt  = now.toISOString()
-        localStorage.setItem('pc:exits-history', JSON.stringify([{
-        plate: 'ABC-123', type: 'car', space: 'A1', client: 'X', isVip: false,
-        entryAt, exitAt
-        }]))
-        svc = new ReportsService(null, { load: async () => ({ carPerHour: 5, motoPerHour: 3, bikePerHour: 1, vipDiscountPercent: 0 }) })
-    })
+// Fake ExitsService que devuelve un historial controlado
+class FakeExitsService {
+    constructor(history) {
+        this._history = history
+    }
 
-    it('calcula totales y filas', async () => {
-        const stats = await svc.computeStats()
-        expect(stats.totalMovements).toBe(1)
-        expect(stats.totalRevenue).toBeGreaterThan(0)
-        expect(stats.rows[0].plate).toBe('ABC-123')
+    async history() {
+        return this._history
+    }
+}
+
+describe('ReportsService', () => {
+    it('calcula totales y resumen a partir del historial', async () => {
+        const now = new Date()
+        const entryAt = new Date(now.getTime() - 2 * 3600000).toISOString() // 2h antes
+        const exitAt = now.toISOString()
+
+        const history = [
+            {
+                entry: {
+                    plate: 'ABC-123',
+                    type: 'car',
+                    client: 'X',
+                    startedAtISO: entryAt,
+                },
+                endedAtISO: exitAt,
+                hours: 2,
+                ratePerHour: 5,
+                total: 10,
+            },
+        ]
+
+        const exitsService = new FakeExitsService(history)
+
+        // reports.service.js hoy recibe (exitsService, ratesService)
+        const svc = new ReportsService(exitsService, null)
+
+        const summary = await svc.getSummary()
+        expect(summary.totalVehicles).toBe(1)
+        expect(summary.totalRevenue).toBe(10)
+        expect(summary.byType.car).toBe(1)
+
+        const hist = await svc.getHistory()
+        expect(hist).toHaveLength(1)
+        expect(hist[0].entry.plate).toBe('ABC-123')
     })
 })
