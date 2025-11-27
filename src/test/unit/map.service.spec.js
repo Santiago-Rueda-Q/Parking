@@ -17,7 +17,7 @@ describe('MapService', () => {
     expect(grid.length).toBeGreaterThan(0)
 
     expect(grid[0]).toHaveProperty('code')
-    expect(grid[0]).toHaveProperty('isOccupied') // <-- aquí el cambio
+    expect(grid[0]).toHaveProperty('isOccupied') 
 
     const a1 = grid.find(c => c.code === 'A1')
     expect(a1).toBeTruthy()

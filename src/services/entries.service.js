@@ -47,11 +47,9 @@ export class EntriesService {
     if (!data.type)     throw new Error('Seleccione tipo de vehículo.');
     if (!data.slotCode) throw new Error('Seleccione espacio.');
 
-    // 🔥 Validación de placa (único sitio donde se decide esto)
     const rawPlate = String(data.plate ?? '').toUpperCase().trim();
 
     if (!rawPlate) {
-      // ESTE es el mensaje que estás viendo
       throw new Error('La placa es obligatoria.');
     }
 
