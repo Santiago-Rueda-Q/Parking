@@ -231,8 +231,8 @@ function onBackspace(index, event) {
 /* ---------- Validación mínima ---------- */
 
 const plateError = computed(() => {
-  const [l1, l2, d1, d2, d3] = plateChars.value
-  const letters = `${l1}${l2}`.trim()
+  const [l1, l2, l3, d1, d2, d3] = plateChars.value
+  const letters = `${l1}${l2}${l3}`.trim()
   const digits  = `${d1}${d2}${d3}`.trim()
 
   if (!letters && !digits) return null
@@ -245,7 +245,6 @@ const plateError = computed(() => {
 /* ==================== RESTO DE CAMPOS ==================== */
 
 const type = computed({
-  get: () => props.modelValue.type ?? 'car',
   set: v => updateField('type', v),
 })
 
@@ -265,7 +264,6 @@ const clientId = computed({
 })
 
 const typeOptions = [
-  { label: 'Carro',      value: 'car' },
   { label: 'Moto',       value: 'motorcycle' },
   { label: 'Bicicleta',  value: 'bicycle' },
 ]
