@@ -231,8 +231,8 @@ function onBackspace(index, event) {
 /* ---------- Validación mínima ---------- */
 
 const plateError = computed(() => {
-  const [l1, l2, l3, d1, d2, d3] = plateChars.value
-  const letters = `${l1}${l2}${l3}`.trim()
+  const [l1, l2, d1, d2, d3] = plateChars.value
+  const letters = `${l1}${l2}`.trim()
   const digits  = `${d1}${d2}${d3}`.trim()
 
   if (!letters && !digits) return null
