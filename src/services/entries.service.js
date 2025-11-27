@@ -57,9 +57,11 @@ export class EntriesService {
 
     const plate = isAnonymousPlate(rawPlate)
       ? 'SIN-PLT'
-      : normalizePlate(rawPlate); // aquí puede lanzar "Formato de placa inválido"
+      : normalizePlate(rawPlate); 
 
-
+    if (plate !== 'SIN-PLT' && await this.isPlateActive(plate)) {
+      throw new Error('La placa ya tiene un ingreso activo.');
+    }
 
     if (await this.isSlotOccupied(data.slotCode)) {
       throw new Error('El espacio seleccionado ya está ocupado.');
