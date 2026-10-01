@@ -15,7 +15,7 @@
             <SlotCard
                 v-for="c in form"
                 :key="c.key"
-                :category="{ icon: c.icon, label: c.label }"
+                :category="{ key: c.key, icon: c.icon, label: c.label }"
                 v-model="c.value"
             />
             </div>
